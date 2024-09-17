@@ -11,7 +11,7 @@ df = pd.read_csv(archivo, delimiter=";")
 df = df.head(1000)
 
 # Eliminar la columna "CODE" y "PROVINCIA" (no aportan información relevante)
-df.drop(columns=['CODE', 'PROVINCIA',], inplace=True)
+df.drop(columns=['CODE', 'PROVINCIA', 'Tiempo'], inplace=True)
 
 # Reemplazar valores de "Mas_1_coche" para convertirlo en numérico (0: No ha comprado más de un coche, 1: Sí ha comprado)
 df['Mas_1_coche'] = df['Mas_1_coche'].apply(lambda x: 1 if x > 0 else 0)
