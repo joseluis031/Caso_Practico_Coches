@@ -14,8 +14,6 @@ import matplotlib.pyplot as plt
 df_train = pd.read_csv('cars_cleaned.csv', delimiter=',')
 df_train = df_train.drop(columns=['CODE', 'PRODUCTO', 'TIPO_CARROCERIA', 'COMBUSTIBLE','EDAD_COCHE', 'Tiempo'])
 
-# Imputar valores faltantes si es necesario
-df_train.fillna("Missing", inplace=True)
 
 # Identificar columnas categóricas
 categorical_columns = df_train.select_dtypes(include=['object']).columns
