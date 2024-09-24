@@ -41,7 +41,7 @@ print(f"Precisión del modelo XGBoost: {accuracy:.4f}")
 
 print(classification_report(y_test, y_pred))
 '''
-
+'''
 # Cargar los archivos CSV de entrenamiento y test
 df_train = pd.read_csv('cars_cleaned.csv', delimiter=',')
 df_test = pd.read_csv('cars_input_cleaned.csv', delimiter=',')
@@ -50,8 +50,7 @@ df_test = pd.read_csv('cars_input_cleaned.csv', delimiter=',')
 df_train = df_train.drop(columns=['CODE', 'PRODUCTO', 'TIPO_CARROCERIA', 'COMBUSTIBLE','EDAD_COCHE', 'Tiempo'])
 df_test = df_test.drop(columns=['CODE', 'PRODUCTO', 'TIPO_CARROCERIA', 'COMBUSTIBLE'])
 
-# Imputar valores faltantes con un string, por ejemplo "Missing"
-df_test.fillna("Missing", inplace=True)
+
 
 # Identificar columnas categóricas
 categorical_columns = df_train.select_dtypes(include=['object']).columns
@@ -93,3 +92,56 @@ print(y_pred)
 #output = pd.DataFrame({'Predicción_Mas_1_coche': y_pred})
 #output.to_csv('predicciones_test.csv', index=False)
 #print("Predicciones guardadas en 'predicciones_test.csv'.")
+'''
+import pandas as pd
+import xgboost as xgb
+from sklearn.preprocessing import LabelEncoder
+
+# Cargar los archivos CSV de entrenamiento y test
+df_train = pd.read_csv('cars_cleaned.csv', delimiter=',')
+df_test = pd.read_csv('cars_input_cleaned.csv', delimiter=',')
+
+# Eliminar columnas innecesarias del conjunto de entrenamiento
+df_train = df_train.drop(columns=['CODE', 'PRODUCTO', 'TIPO_CARROCERIA', 'COMBUSTIBLE', 'EDAD_COCHE', 'Tiempo'])
+
+# Identificar columnas categóricas en el conjunto de entrenamiento y test
+categorical_columns_train = df_train.select_dtypes(include=['object']).columns
+categorical_columns_test = df_test.select_dtypes(include=['object']).columns
+
+# Convertir las columnas categóricas a tipo "category"
+for column in categorical_columns_train:
+    df_train[column] = df_train[column].astype('category')
+for column in categorical_columns_test:
+    df_test[column] = df_test[column].astype('category')
+
+# Convertir las columnas categóricas en etiquetas numéricas usando LabelEncoder
+label_encoder = LabelEncoder()
+
+for column in categorical_columns_train:
+    df_train[column] = label_encoder.fit_transform(df_train[column])
+for column in categorical_columns_test:
+    df_test[column] = label_encoder.fit_transform(df_test[column])
+
+# Separar las características (X) y la variable objetivo (y) en el conjunto de entrenamiento
+X_train = df_train.drop(columns=['Mas_1_coche'])
+y_train = df_train['Mas_1_coche']
+
+# Asegurarse de que las columnas de test sean las mismas que las de entrenamiento
+X_test = df_test
+
+# Crear el modelo XGBoost
+model = xgb.XGBClassifier()
+
+# Entrenar el modelo con los datos de entrenamiento
+model.fit(X_train, y_train)
+
+# Realizar predicciones en el conjunto de test
+y_pred = model.predict(X_test)
+
+# Añadir las predicciones al dataframe original del test
+df_test['Predicción_Mas_1_coche'] = y_pred
+
+# Guardar el nuevo archivo CSV con las predicciones añadidas
+df_test.to_csv('cars_input_cleaned_con_predicciones.csv', index=False)
+
+print("Predicciones guardadas en 'cars_input_cleaned_con_predicciones.csv'.")
